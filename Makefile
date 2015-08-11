@@ -1,7 +1,7 @@
 all: libpluslogic pluslogicint
 
-libpluslogic: pluslogic.o parser.o boolean.o logicmode.o
-	ar rcs libpluslogic.a pluslogic.o parser.o boolean.o logicmode.o
+libpluslogic: pluslogic.o parser.o boolean.o lukasiewicz_ternary.o logicmode.o
+	ar rcs libpluslogic.a pluslogic.o parser.o boolean.o lukasiewicz_ternary.o logicmode.o
 
 pluslogicint: libpluslogic pluslogicint.cpp truthtable.cpp
 	g++ -std=c++0x -g -o pluslogicint pluslogicint.cpp truthtable.cpp libpluslogic.a -lreadline
@@ -14,6 +14,9 @@ parser.o: parser.cpp
 
 boolean.o: boolean.cpp
 	g++ -std=c++0x -g -c boolean.cpp
+
+lukasiewicz_ternary.o: lukasiewicz_ternary.cpp
+	g++ -std=c++0x -g -c lukasiewicz_ternary.cpp
 
 logicmode.o: logicmode.cpp
 	g++ -std=c++0x -g -c logicmode.cpp

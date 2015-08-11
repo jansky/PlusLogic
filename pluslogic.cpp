@@ -217,6 +217,65 @@ PLCalcToken pl_iterate_tokens(std::vector<PLCalcToken>& tokens, PLLogicMode mode
 			}
 		}
 
+		//Other unary functions
+
+		for(int i = 0; i<wcopy.size(); i++)
+		{
+			if(wcopy[i].type == operand && wcopy[i].value == pl_undef && gofurther == true)
+			{
+				if(!pl_is_value_numeric(wcopy[i + 1]))
+					throw syntaxerror;
+				else
+				{
+				
+					gofurther = false;
+					newvalue = pl_create_token(number, ltype.pl_undef(wcopy[i + 1].value));
+					blacklist.push_back(i + 1);
+					blacklist.push_back(i);
+					insertat = i;
+
+				}
+			}
+		}
+
+		for(int i = 0; i<wcopy.size(); i++)
+		{
+			if(wcopy[i].type == operand && wcopy[i].value == pl_notfalse && gofurther == true)
+			{
+				if(!pl_is_value_numeric(wcopy[i + 1]))
+					throw syntaxerror;
+				else
+				{
+				
+					gofurther = false;
+					newvalue = pl_create_token(number, ltype.pl_notfalse(wcopy[i + 1].value));
+					blacklist.push_back(i + 1);
+					blacklist.push_back(i);
+					insertat = i;
+
+				}
+			}
+		}
+
+		for(int i = 0; i<wcopy.size(); i++)
+		{
+			if(wcopy[i].type == operand && wcopy[i].value == pl_istrue && gofurther == true)
+			{
+				if(!pl_is_value_numeric(wcopy[i + 1]))
+					throw syntaxerror;
+				else
+				{
+				
+					gofurther = false;
+					newvalue = pl_create_token(number, ltype.pl_istrue(wcopy[i + 1].value));
+					blacklist.push_back(i + 1);
+					blacklist.push_back(i);
+					insertat = i;
+
+				}
+			}
+		}
+
 
 		
 

@@ -1,4 +1,4 @@
-PlusLogic is a library and interpreter written in C++ to do logic operations. It currently supports only boolean algebra, but expansion toward different types of ternary logic is planned.
+PlusLogic is a library and interpreter written in C++ to do logic operations. It currently supports Boolean algebra and Łukasiewicz (pronounced Woo-kah-sheh-veech, or [wukaˈɕɛvʲitʂ] for those who know IPA) three value or ternary logic.
 
 The library is licensed under the LGPL v3 and the interpreter is licensed under the GPL v3.
 
@@ -10,12 +10,25 @@ The library is designed to be simple to use. After installing PlusLogic on your 
 int main(void)
 {
 	std::string expr = "0->1";
-	long double result = pl_evaluate_math_expression(expr);
+	long double result = pl_evaluate_math_expression(expr,boolean);
 	std::cout << result << std::endl;
 	return 0;
 }
 
-After compiling this program with the -lpluslogic flag, you should get the output '1'.
+After compiling this program with the -lpluslogic flag, you should get the output '1'. Another example:
+
+#include <iostream>
+#include <pluslogic.h>
+
+int main(void)
+{
+	std::string expr = "I-1";
+	long double result = pl_evaluate_math_expression(expr,lukasiewicz_ternary);
+	std::cout << result << std::endl;
+	return 0;
+}
+
+The above should output '-1' as a result.
 
 The PlusLogic library also supports defining and using variables in your expressions:
 
@@ -34,7 +47,7 @@ int main(void)
 	//Create variable 'x' with value of '1->0'.
 	variables.push_back(pl_create_variable(pl_parse_string("1->0", true), 'x'));
 
-	long double result = pl_evaluate_math_expression(expr, variables);
+	long double result = pl_evaluate_math_expression(expr, variables, boolean);
 	std::cout << result << std::endl;
 	return 0;
 }
@@ -43,7 +56,7 @@ The above will output '1'.
 
 The PlusLogic interpreter is designed to allow the evaluation of logic expressions, and supports user-defined variables and functions. The interpreter is also capable of generating truth tables. The interpreter can also execute user-written scripts when run with the '-e' flag (see bottom for more details). After installing PlusLogic, you can run 'pluscalcint' to start it. If you do not pass it any command line arguments, it will launch in interactive mode:
 
-PlusLogic Interpreter v0.99
+PlusLogic Interpreter v0.99a
 Copyright (c) 2015 Ian Duncan
 This is free software with ABSOLUTELY NO WARRANTY.
 Enter 'license' for more information.
@@ -78,8 +91,8 @@ Expressions evaluated in non-interactive mode are not added to the history file.
 
 Expressions that you wish to be evaluated when the PlusLogic interpreter starts in both interactive and non-interactive mode can be added to the file ~/.pluscalcintrc, with one expression per line.
 
-PlusLogic supports the following operations: ~ & ~& | ~| ^ -> =
-PlusLogic supports nested parentheses.
+PlusLogic supports the following operations: ~ & ~& | ~| ^ -> = I L M
+PlusLogic supports nested parentheses, and the use of square brackets as parentheses. Since square brackets are interpreted just as parentheses, one can mix and match them like '[0->1)', but this is not reccomended.
 
 PlusLogic's operations are explained below in their order of precedence.
 
@@ -105,14 +118,30 @@ PlusLogic's operations are explained below in their order of precedence.
   Example: 0->1 = 1
 
 = - equality
-  Example 0=1 = 0
+  Example: 0=1 = 0
+
+I - it is unknown that... (Łukasiewicz ternary logic only)
+  Example: I0 = 1
+
+L - it is true that... (Łukasiewicz ternary logic only)
+  Example: L0 = -1
+
+M - it is not false that... (Łukasiewicz ternary logic only)
+  Example M-1 = -1
 
 You can set the logic mode using the mode command. Running the mode command without any arguments will display the current mode.
 
 > mode
 Logic mode: boolean
+> mode lukasiewicz_ternary
+Logic mode: lukasiewicz_ternary
+> 
 
-Currently only boolean logic is supported.
+If you are launching the interpreter in non-interactive mode and/or you want to change the default mode (boolean) without editing the .pluslogicrc file, you can set the environment variable 'PL_LOGIC_MODE' to your mode of choice.
+
+$ PL_LOGIC_MODE=lukasiewicz_ternary pluslogicint "I0"
+1
+$ 
 
 The PlusLogic interpreter also includes the variable support of the PlusLogic library, as well as functions (not a part of the library).
 
@@ -153,7 +182,7 @@ Defining and using functions is simple:
 
 Truth tables can be generated with the 'truthtable' command, whose syntax is similar to the 'func' command.
 
-NOTE: For boolean logic you can only specify two variables, not any more or less. However, you can specify as many formulas (separated by commas) as you wish.
+NOTE: You can only specify two variables, not any more or less. However, you can specify as many formulas (separated by commas) as you wish.
 
 > truthtable p,q;p->q,~p|q
 p	q	p->q	~p|q 

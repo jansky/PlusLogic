@@ -4,10 +4,10 @@
 
 void pli_truth_table_gen(std::vector<std::string> var_names, std::vector<std::string> formulas, std::vector<PLVariable> variables, PLLogicMode mode)
 {
-	PLLogicType ltype = pl_get_logic_type_data(mode);
+	//PLLogicType ltype = pl_get_logic_type_data(mode);
 
-	if(var_names.size() != ltype.permissible_numbers.size())
-		throw modeerror;
+	if(var_names.size() != 2)
+		std::cout << "failure.";
 
 	std::vector<PLVariable> vars = variables;
 	std::vector<int> to_remove;
@@ -42,6 +42,9 @@ void pli_truth_table_gen(std::vector<std::string> var_names, std::vector<std::st
 	}
 
 	std::cout << std::endl << std::endl;
+
+	double start = 0;
+	double end = 0;
 			     
 
 	
@@ -50,30 +53,15 @@ void pli_truth_table_gen(std::vector<std::string> var_names, std::vector<std::st
 	{
 	case boolean:
 	{
-		for(int i = 0; i <= 1; i++)
-		{
-			for(int j = 0; j <= 1; j++)
-			{
-				vars.push_back(pl_create_variable(i, var_names[0][0]));
-				vars.push_back(pl_create_variable(j, var_names[1][0]));
-
-				std::cout << i << "\t" << j << "\t";
-
-				for(int k = 0; k < formulas.size(); k++)
-				{
-					std::cout << pl_evaluate_math_expression(formulas[k], vars, boolean);
-
-					if(k != (formulas.size() - 1))
-						std::cout << "\t";
-				}
-
-				std::cout << std::endl;
-
-				vars.pop_back();
-				vars.pop_back();
-			}
-		}
-
+		start = 0;
+		end = 1;
+		
+		break;
+	}
+	case lukasiewicz_ternary:
+	{
+		start = -1;
+		end = 1;
 		break;
 	}
 	default:
@@ -81,6 +69,30 @@ void pli_truth_table_gen(std::vector<std::string> var_names, std::vector<std::st
 		
 		throw modeerror;
 	}
+	}
+
+	for(int i = start; i <= end; i++)
+	{
+		for(int j = start; j <= end; j++)
+		{
+			vars.push_back(pl_create_variable(i, var_names[0][0]));
+			vars.push_back(pl_create_variable(j, var_names[1][0]));
+
+			std::cout << i << "\t" << j << "\t";
+
+			for(int k = 0; k < formulas.size(); k++)
+			{
+				std::cout << pl_evaluate_math_expression(formulas[k], vars, mode);
+
+				if(k != (formulas.size() - 1))
+					std::cout << "\t";
+			}
+
+			std::cout << std::endl;
+
+			vars.pop_back();
+			vars.pop_back();
+		}
 	}
 }
 

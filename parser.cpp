@@ -60,10 +60,21 @@ std::vector<PLCalcToken> pl_parse_string(std::string s,bool varsenabled)
 				{
 					tokens.push_back(pl_create_token(operand, pl_and));
 				}
-			
 				else if(s[i] == '|')
 				{
 					tokens.push_back(pl_create_token(operand, pl_or));
+				}
+				else if(s[i] == 'I')
+				{
+					tokens.push_back(pl_create_token(operand, pl_undef));
+				}
+				else if(s[i] == 'M')
+				{
+					tokens.push_back(pl_create_token(operand, pl_notfalse));
+				}
+				else if(s[i] == 'L')
+				{
+					tokens.push_back(pl_create_token(operand, pl_istrue));
 				}
 				else if(s[i] == '^')
 				{
@@ -80,7 +91,15 @@ std::vector<PLCalcToken> pl_parse_string(std::string s,bool varsenabled)
 				else if(s[i] == ')')
 				{
 					tokens.push_back(pl_create_token(operand, rightper));
-				}		
+				}
+				else if(s[i] == '[')
+				{
+					tokens.push_back(pl_create_token(operand, leftper));
+				}
+				else if(s[i] == ']')
+				{
+					tokens.push_back(pl_create_token(operand, rightper));
+				}
 				else if(s[i] == '-')
 				{
 					if(s.length() > i + 1 && s[i + 1] == '>')

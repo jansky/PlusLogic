@@ -24,9 +24,9 @@
 
 
 enum PLTokenType{operand,number,variable};
-enum PLOperand{invalid,pl_not,pl_and,pl_or,pl_xor,pl_nor,pl_nand,pl_imp,pl_eq,leftper,rightper,minus};
+enum PLOperand{invalid,pl_not,pl_and,pl_or,pl_xor,pl_nor,pl_nand,pl_imp,pl_eq,pl_undef,pl_notfalse,pl_istrue,leftper,rightper,minus};
 enum PLException{syntaxerror,lasttokenerror,domainerror,operationerror,variableerror,modeerror};
-enum PLLogicMode{boolean};
+enum PLLogicMode{boolean,lukasiewicz_ternary};
 
 typedef double (*PLLogicFunc)(double, double);
 typedef double (*PLLogicUnaryFunc)(double);
@@ -47,6 +47,9 @@ typedef struct PLVariable
 typedef struct PLLogicType
 {
 	PLLogicUnaryFunc pl_not;
+	PLLogicUnaryFunc pl_undef;
+	PLLogicUnaryFunc pl_notfalse;
+	PLLogicUnaryFunc pl_istrue;
 	PLLogicFunc pl_and;
 	PLLogicFunc pl_or;
 	PLLogicFunc pl_xor;
@@ -54,7 +57,7 @@ typedef struct PLLogicType
 	PLLogicFunc pl_nor;
 	PLLogicFunc pl_imp;
 	PLLogicFunc pl_eq;
-
+	
 	std::vector<double> permissible_numbers;
 } PLLogicType;
 
@@ -90,6 +93,11 @@ std::string pl_tokens_to_string(std::vector<PLCalcToken> tokens);
 
 PLLogicType pl_get_logic_type_data(PLLogicMode mode);
 
+/* Unimplemented logic function (for placeholder or in case operator serves no purpose in certain mode) */
+
+double pl_unary_unimp(double a);
+double pl_unimp(double a, double b);
+
 /* Boolean Logic Functions */
 
 double boolean_not(double a);
@@ -101,5 +109,15 @@ double boolean_imp(double a, double b);
 double boolean_eq(double a, double b);
 double boolean_nor(double a, double b);
 
+/* lukasiewicz_ternary functions */
 
-
+double lukasiewicz_not(double a);
+double lukasiewicz_and(double a, double b);
+double lukasiewicz_or(double a, double b);
+double lukasiewicz_nand(double a, double b);
+double lukasiewicz_imp(double a, double b);
+double lukasiewicz_eq(double a, double b);
+double lukasiewicz_nor(double a, double b);
+double lukasiewicz_undef(double a);
+double lukasiewicz_notfalse(double a);
+double lukasiewicz_istrue(double a);
