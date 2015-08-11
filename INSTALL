@@ -1,0 +1,16 @@
+To install the PlusLogic library and interpreter run the following commands:
+
+$ make
+$ sudo make install
+
+NOTE: In order to build the interpreter you need the GNU readline library.
+
+To remove object files as well as built libraries and programs, run:
+
+$ make clean
+
+To uninstall the PlusLogic library and interpreter, run:
+
+$ sudo make uninstall
+
+During the installation process, the makefile copies libpluslogic.a to /usr/lib, pluslogic.h to /usr/include and pluslogicint to /usr/bin. Change this as needed.

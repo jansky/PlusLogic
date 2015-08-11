@@ -1,0 +1,233 @@
+PlusLogic is a library and interpreter written in C++ to do logic operations. It currently supports only boolean algebra, but expansion toward different types of ternary logic is planned.
+
+The library is licensed under the LGPL v3 and the interpreter is licensed under the GPL v3.
+
+The library is designed to be simple to use. After installing PlusLogic on your computer (follow the instructions contained in the file 'INSTALL'), any C++ code can use the library by including pluslogic.h and calling the function pl_evaluate_math_expression, which returns a long double, as below:
+
+#include <iostream>
+#include <pluslogic.h>
+
+int main(void)
+{
+	std::string expr = "0->1";
+	long double result = pl_evaluate_math_expression(expr);
+	std::cout << result << std::endl;
+	return 0;
+}
+
+After compiling this program with the -lpluslogic flag, you should get the output '1'.
+
+The PlusLogic library also supports defining and using variables in your expressions:
+
+#include <iostream>
+#include <pluslogic.h>
+
+int main(void)
+{
+	std::string expr = "x^y";
+	//Variables list
+	std::vector<PLVariable> variables;
+
+	//Create variable 'y' with value of 1
+	variables.push_back(pl_create_variable(1, 'y'));
+
+	//Create variable 'x' with value of '1->0'.
+	variables.push_back(pl_create_variable(pl_parse_string("1->0", true), 'x'));
+
+	long double result = pl_evaluate_math_expression(expr, variables);
+	std::cout << result << std::endl;
+	return 0;
+}
+
+The above will output '1'.
+
+The PlusLogic interpreter is designed to allow the evaluation of logic expressions, and supports user-defined variables and functions. The interpreter is also capable of generating truth tables. The interpreter can also execute user-written scripts when run with the '-e' flag (see bottom for more details). After installing PlusLogic, you can run 'pluscalcint' to start it. If you do not pass it any command line arguments, it will launch in interactive mode:
+
+PlusLogic Interpreter v0.99
+Copyright (c) 2015 Ian Duncan
+This is free software with ABSOLUTELY NO WARRANTY.
+Enter 'license' for more information.
+Enter 'quit' to exit and 'clear' to clear the history file (~/.pluslogicint_history).
+
+Logic mode: boolean
+
+> 
+
+Enter logic expressions at the prompt '>' such as 1^(0->1) and press enter to evaluate them. The interpreter contains the macro 'ans' which is expanded before evaluation to the result of the previous calculation:
+
+> 1^(0->1)
+0
+> ans->1
+1
+> 
+
+The PlusLogic interpreter makes use of the GNU readline library. All expressions that are entered are stored in a history file located at (~/.pluscalcint_history). When you are running the interpreter you can page through the history using the arrow keys as in any other program that uses the readline library.
+
+To clear the history file enter 'clear'. To quit enter 'quit'. To view licensing and warranty information enter 'license'.
+
+The PlusLogicInterpreter can also be run in non-interactive mode, in which it evaluates an expression passed as a command line argument.
+
+$ pluscalcint "1&1"
+1
+$ pluscalcint "(0->1)=(~0|1)"
+1
+$ pluscalcint "1^(~0|1)"
+0
+
+Expressions evaluated in non-interactive mode are not added to the history file.
+
+Expressions that you wish to be evaluated when the PlusLogic interpreter starts in both interactive and non-interactive mode can be added to the file ~/.pluscalcintrc, with one expression per line.
+
+PlusLogic supports the following operations: ~ & ~& | ~| ^ -> =
+PlusLogic supports nested parentheses.
+
+PlusLogic's operations are explained below in their order of precedence.
+
+~ - not
+  Example: ~1 = 0
+
+& - and
+  Example: 0&0 = 0
+
+~& - nand
+  Example: 0~&0 = 1
+
+| - or
+  Example: 0|1 = 1
+
+~| - nor
+  Example: 0~|0 = 1
+
+^ - xor
+  Example: 1^1 = 0
+
+-> - implication
+  Example: 0->1 = 1
+
+= - equality
+  Example 0=1 = 0
+
+You can set the logic mode using the mode command. Running the mode command without any arguments will display the current mode.
+
+> mode
+Logic mode: boolean
+
+Currently only boolean logic is supported.
+
+The PlusLogic interpreter also includes the variable support of the PlusLogic library, as well as functions (not a part of the library).
+
+Variables can be any character that is not a defined operation(e.g. ~ or |).
+
+Examples of valid variable names: a,b,c,$
+Examples of invalid variables names (don't use these): max,~,**
+
+Defining and using variables is simple: 
+
+> set a 1
+> a^0
+1
+> set b 0
+> a->b
+0
+
+The PlusLogic library, and by extension, the interpreter, evaluates the value of variables at the time of expression evaluation. This means that values of variables can change dynamically:
+
+> set a 1
+> set b a&1
+> b
+1
+> set a 0
+> b
+0
+
+Functions can have multiple arguments. Argument names follow the same rules as variable names. If there is a conflict (e.g. you define variable x and have a function with an argument called x), you cannot access the defined variable from within the function.
+
+Defining and using functions is simple:
+
+> set x 1
+> func test x,y,z;x&y&z
+> call test 0,1,1
+0
+> x
+1
+
+Truth tables can be generated with the 'truthtable' command, whose syntax is similar to the 'func' command.
+
+NOTE: For boolean logic you can only specify two variables, not any more or less. However, you can specify as many formulas (separated by commas) as you wish.
+
+> truthtable p,q;p->q,~p|q
+p	q	p->q	~p|q 
+
+0	0	1	1
+0	1	1	1
+1	0	0	0
+1	1	1	1
+> 
+
+
+Defined variables and functions can be saved to a file by using the save command to allow them to be used in later sessions.
+
+> save filename.pl
+
+To load them, use the load command:
+
+> load filename.pl
+
+These filenames can also be specified on the command line by using the -l switch:
+
+$ pluscalcint -l filename1.pl filename2.pl ...
+
+Users can also write their own scripts to be executed by the PlusLogic interpreter using the -e flag:
+
+$ pluscalcint -e script.pl
+
+You can also use the following shebang:
+
+#!/usr/bin/pluscalcint -e
+
+The print, printr, and input commands, although usable in interactive mode, were designed for scripts. Scripts can contain any instruction that you could evaluate in interactive mode, including defining variables and functions. Comment lines are preceded by a '#'.
+
+Example:
+
+#!/usr/bin/pluslogicint -e
+print This is a PlusLogic script
+input a
+input b This is my custom prompt: 
+printr The result is: 
+a&b
+
+Result
+
+This is a PlusLogic script
+a? 1
+This is my custom prompt: 1
+The result is: 1
+
+
+Details on print, printr, and input
+
+print - Prints a string and a newline
+	Example: print This is a test
+	Result: This is a test\n
+	(\n = newline)
+
+printr - Prints a string without a newline
+	Example: The result is: 
+	Result: The result is: 
+
+input - Allows a variable to be defined by user input
+	Example: input a
+	Result: a? 
+	Example: input a My custom prompt: 
+	Result: My custom prompt: 
+	NOTE: Any valid PlusLogic expression may be entered at the prompt
+
+
+	
+
+
+
+
+
+
+
